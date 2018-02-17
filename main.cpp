@@ -15,7 +15,7 @@ struct Brick {
         bodyDef.position.Set(mX, mY);                          // with an initial position
         bodyDef.angle = -angle * (float)M_PI / 180.f;          // and angle.
         body = world.CreateBody(&bodyDef);                     // The body definition is passed to the world object
-        polygon = b2PolygonShape();             // We create a polygon
+        polygon = b2PolygonShape();                            // We create a polygon
         polygon.SetAsBox(width/2.f, height/2.f);               // and use the shortcut to form the polygon into a box
 
         if(rigid) {
@@ -48,13 +48,6 @@ struct Brick {
         sf::Vector2f position = shape.getPosition();
         return (position.x >= 0 && position.x < windowWidth && position.y >=0 && position.y < windowHeight);
     }
-    ~Brick() {
-        b2Fixture* fix = body->GetFixtureList();
-        while(fix) {
-            body->DestroyFixture(fix);
-            fix = fix->GetNext();
-        }
-    }
 };
 
 int main(int argc, char** argv) {
@@ -70,7 +63,7 @@ int main(int argc, char** argv) {
     std::vector<Brick> bricks;
     bricks.emplace_back(0.f, 50.f, 2, 2, 0.f, sf::Color::Yellow, world);
 
-    float32 timeStep = 1.0f / 30.0f;
+    float32 timeStep = 1.0f / 60.0f;
     int32 velocityIterations = 8;
     int32 positionIterations = 1;
 
