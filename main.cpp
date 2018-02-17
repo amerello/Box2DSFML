@@ -4,43 +4,56 @@
 #include <Box2D/Box2D.h>
 
 constexpr int windowWidth{800}, windowHeight{600};
-constexpr float blockWidth{5.f}, blockHeight{5.f};
 
 struct Brick {
     sf::RectangleShape shape;
     b2Body* body;
-    Brick(float mX, float mY) {
-        shape.setPosition(mX, mY);
-        shape.setSize({blockWidth, blockHeight});
-        shape.setFillColor(sf::Color::Yellow);
-        shape.setOrigin(blockWidth/2.f, blockHeight/2.f);
-    }
-    Brick(float mX, float mY, float width, float height, sf::Color color) {
-        shape.setPosition(mX, mY);
+    b2PolygonShape polygon;
+    Brick(float mX, float mY, float width, float height, float angle, sf::Color color, b2World& world, bool rigid=false) {
+        b2BodyDef bodyDef;                                     // We define a body
+        bodyDef.type = rigid ? b2_staticBody : b2_dynamicBody;
+        bodyDef.position.Set(mX, mY);                          // with an initial position
+        bodyDef.angle = -angle * (float)M_PI / 180.f;          // and angle.
+        body = world.CreateBody(&bodyDef);                     // The body definition is passed to the world object
+        polygon = b2PolygonShape();             // We create a polygon
+        polygon.SetAsBox(width/2.f, height/2.f);               // and use the shortcut to form the polygon into a box
+
+        if(rigid) {
+            body->CreateFixture(&polygon, 0.f);                 // Since we don't need to edit the default fixture we
+        } else {                                                // use the shortcut.
+            b2FixtureDef fixtureDef;
+            fixtureDef.shape = &polygon;
+            fixtureDef.density = 1.0f;
+            fixtureDef.friction = 0.3f;
+            fixtureDef.restitution = 1.0f;
+            body->CreateFixture(&fixtureDef);
+        }
+
+        if(rigid)
+            shape.setPosition(windowWidth/2 + mX, windowHeight/2 - mY);
+        else
+            shape.setPosition(mX, mY);
         shape.setSize({width, height});
         shape.setFillColor(color);
         shape.setOrigin(width/2.f, height/2.f);
-    }
-    Brick(float mX, float mY, float width, float height, sf::Color color, b2World& world) : Brick(mX, mY, width, height, color) {
-        b2BodyDef bodyDef;
-        bodyDef.type = b2_dynamicBody;
-        bodyDef.position.Set(mX, mY);
-        body = world.CreateBody(&bodyDef);
-        b2PolygonShape* dynamicBox = new b2PolygonShape;  // Needs to be destructed
-        dynamicBox->SetAsBox(width/2.f, height/2.f);
-
-        b2FixtureDef fixtureDef;
-        fixtureDef.shape = dynamicBox;
-        fixtureDef.density = 1.0f;
-        fixtureDef.friction = 0.3f;
-        fixtureDef.restitution = 1.0f;
-        body->CreateFixture(&fixtureDef);
+        shape.setRotation(angle);
     }
     void update() {
         b2Vec2 position = body->GetPosition();
         float32 angle = body->GetAngle();
         shape.setPosition(windowWidth/2 + position.x, windowHeight/2 - position.y);
-        shape.setRotation(-angle*180.f/3.1415f);
+        shape.setRotation(-angle*180.f/(float)M_PI);
+    }
+    bool isVisible() {
+        sf::Vector2f position = shape.getPosition();
+        return (position.x >= 0 && position.x < windowWidth && position.y >=0 && position.y < windowHeight);
+    }
+    ~Brick() {
+        b2Fixture* fix = body->GetFixtureList();
+        while(fix) {
+            body->DestroyFixture(fix);
+            fix = fix->GetNext();
+        }
     }
 };
 
@@ -48,34 +61,25 @@ int main(int argc, char** argv) {
     B2_NOT_USED(argc);
     B2_NOT_USED(argv);
 
-    b2Vec2 gravity(0.0f, -10.f);
-    b2World world(gravity);
+    b2Vec2 gravity(0.0f, -10.f);  // First, we define the gravity vector.
+    b2World world(gravity);       // Now we create the world object. Note that we are creating it in the stack, so it
+                                  // must remain in scope.
 
-    b2BodyDef groundBodyDef;
-    groundBodyDef.position.Set(0.0f, -10.0f);
-    groundBodyDef.angle = -3.1415f/6.f;
-    b2Body* groundBody = world.CreateBody(&groundBodyDef);
-    b2PolygonShape groundBox;
-    groundBox.SetAsBox(50.0f, 10.0f);
-    groundBody->CreateFixture(&groundBox, 0.0f);
-
-    Brick groundBrick{windowWidth/2, windowHeight/2 + 10, 100, 20, sf::Color::Green};
-    groundBrick.shape.setRotation(30);
+    Brick groundBrick(0.f, -10.f, 100.f, 20.f, 30.f, sf::Color::Green, world, true);
 
     std::vector<Brick> bricks;
-    bricks.emplace_back(0.f, 50.f, 2, 2, sf::Color::Yellow, world);
+    bricks.emplace_back(0.f, 50.f, 2, 2, 0.f, sf::Color::Yellow, world);
 
-
-    float32 timeStep = 1.0f / 60.0f;
+    float32 timeStep = 1.0f / 30.0f;
     int32 velocityIterations = 8;
-    int32 positionIterations = 3;
+    int32 positionIterations = 1;
 
     sf::RenderWindow window{{windowWidth, windowHeight}, "Box2D / SFML"};
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
 
     while(window.isOpen()) {
-        sf::Event event;
+        sf::Event event{};
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed)
                 window.close();
@@ -83,7 +87,7 @@ int main(int argc, char** argv) {
                 if(event.mouseButton.button == sf::Mouse::Left) {
                     float xPos = (float) event.mouseButton.x - windowWidth/2;
                     float yPos = (float) -event.mouseButton.y + windowHeight/2;
-                    bricks.emplace_back(xPos, yPos, 2, 2, sf::Color::Yellow, world);
+                    bricks.emplace_back(xPos, yPos, 2, 2, 0.f, sf::Color::Yellow, world);
                 }
             }
         }
@@ -94,9 +98,16 @@ int main(int argc, char** argv) {
 
         window.clear(sf::Color::Black);
 
-        for(auto& brick: bricks) {
-            brick.update();
-            window.draw(brick.shape);
+        auto brick_it = std::begin(bricks);
+        while (brick_it != std::end(bricks)) {
+            brick_it->update();
+            if(brick_it->isVisible()) {
+                window.draw(brick_it->shape);
+                ++brick_it;
+            }
+            else {
+                bricks.erase(brick_it);
+            }
         }
 
         window.draw(groundBrick.shape);
