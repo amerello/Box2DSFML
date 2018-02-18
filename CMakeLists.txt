@@ -3,7 +3,7 @@ project(Box2DSFML)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp)
+set(SOURCE_FILES main.cpp Brick.cpp Brick.h helper.h constants.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 set(CMAKE_MODULE_PATH "/usr/share/SFML/cmake/Modules" ${CMAKE_MODULE_PATH})
