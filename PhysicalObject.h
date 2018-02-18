@@ -6,6 +6,8 @@
 class PhysicalObject {
 public:
     PhysicalObject() = default;
+    PhysicalObject(float x, float y, float angle, b2World& world, bool rigid);
+    void resetShape(float x, float y, float angle, const sf::Vector2f& origin, const sf::Color& color);
     void update();
     bool isVisible();
     void rotate(float deg);
@@ -14,6 +16,8 @@ public:
     b2Body* getBody() { return body; }
 
 protected:
+    void createFixture(const b2Shape& shape, bool rigid);
+
     std::shared_ptr<sf::Shape> shape;   // SFML graphical object representation
     b2Body* body = nullptr;             // Box2D physical object representation
 };
