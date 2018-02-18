@@ -13,6 +13,12 @@ int main(int argc, char** argv) {
     B2_NOT_USED(argc);
     B2_NOT_USED(argv);
 
+    //This is for the dice and balls
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> dice(1, 6);
+    std::uniform_int_distribution<> rd_ball(0, 15);
+
     b2Vec2 gravity(0.0f, -10.f);  // First, we define the gravity vector.
     b2World world(gravity);       // Now we create the world object. Note that we are creating it in the stack, so it
                                   // must remain in scope.
@@ -22,8 +28,9 @@ int main(int argc, char** argv) {
     groundBrick.setTexture("textures/trak_tile_red.jpg", sf::IntRect(25, 40, 200, 40));
 
     physical_vector bricks;
-    bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,sf::Color::Yellow, world));
-    bricks.back().get()->setTexture("textures/wood4.png", sf::IntRect(0, 0, 200, 200));
+    bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,sf::Color::White, world));
+    bricks.back().get()->setTexture("textures/balls/ball" + std::to_string(rd_ball(gen)) + ".png",
+                                    sf::IntRect(199, 199, 403, 403));
 
     // Simulation parameters
     float32 timeStep = 1.0f / 30.0f;
@@ -34,11 +41,6 @@ int main(int argc, char** argv) {
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
 
-    //This is for the dice
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dice(1, 6);
-
     while(window.isOpen()) {
         sf::Event event;
         while(window.pollEvent(event)) {
@@ -48,8 +50,9 @@ int main(int argc, char** argv) {
                 float xPos = (float) event.mouseButton.x - windowWidth/2;
                 float yPos = (float) -event.mouseButton.y + windowHeight/2;
                 if(event.mouseButton.button == sf::Mouse::Left) {
-                    bricks.emplace_back(std::make_unique<Ball>(xPos, yPos, 10.f,sf::Color::Yellow, world));
-                    bricks.back().get()->setTexture("textures/wood4.png", sf::IntRect(0, 0, 200, 200));
+                    bricks.emplace_back(std::make_unique<Ball>(xPos, yPos, 10.f,sf::Color::White, world));
+                    bricks.back().get()->setTexture("textures/balls/ball" + std::to_string(rd_ball(gen)) + ".png",
+                                                    sf::IntRect(199, 199, 403, 403));
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
                     bricks.emplace_back(std::make_unique<Brick>(xPos, yPos, 10.f, 10.f, 0.f, sf::Color::White, world));
                     sf::IntRect rect;
