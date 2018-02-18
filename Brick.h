@@ -6,7 +6,7 @@
 
 class Brick  : public PhysicalObject {
 public:
-    Brick(float x, float y, float width, float height, float angle, sf::Color color, b2World& world, bool rigid=false);
+    Brick(float x, float y, float width, float height, float angle, const sf::Color& color, b2World& world, bool rigid=false);
 };
 
 

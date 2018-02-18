@@ -12,6 +12,7 @@ public:
     bool isVisible();
     void rotate(float deg);
     void translate(float x, float y);
+    void setTexture(const std::string& filename, const sf::IntRect& rect);
     const sf::Shape& getShape() { return *shape; }
     b2Body* getBody() { return body; }
 
@@ -20,6 +21,7 @@ protected:
 
     std::shared_ptr<sf::Shape> shape;   // SFML graphical object representation
     b2Body* body = nullptr;             // Box2D physical object representation
+    sf::Texture texture;
 };
 
 

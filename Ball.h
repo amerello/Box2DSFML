@@ -6,7 +6,7 @@
 
 class Ball : public PhysicalObject {
 public:
-    Ball(float x, float y, float radius, sf::Color color, b2World& world, bool rigid=false);
+    Ball(float x, float y, float radius, const sf::Color& color, b2World& world, bool rigid=false);
 };
 
 

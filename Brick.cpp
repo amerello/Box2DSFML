@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "helper.h"
 
-Brick::Brick(float x, float y, float width, float height, float angle, sf::Color color, b2World &world, bool rigid)
+Brick::Brick(float x, float y, float width, float height, float angle, const sf::Color& color, b2World &world, bool rigid)
         : PhysicalObject(x, y, angle, world, rigid) {
     b2PolygonShape polygon = b2PolygonShape();             // Now we create a polygon
     polygon.SetAsBox(width / 2.f, height / 2.f);           // and use the shortcut to form the polygon into a box

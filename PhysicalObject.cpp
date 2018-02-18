@@ -30,6 +30,11 @@ void PhysicalObject::createFixture(const b2Shape& shape, bool rigid) {
     }
 }
 
+void PhysicalObject::setTexture(const std::string& filename, const sf::IntRect& rect) {
+    texture.loadFromFile(filename, rect);
+    shape->setTexture(&texture);
+}
+
 // Updates graphical object position from Box2D
 void PhysicalObject::update() {
     b2Vec2 position = body->GetPosition();
