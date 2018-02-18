@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
                         case 3: rect = sf::IntRect(174,  8, 50, 50); break;
                         case 4: rect = sf::IntRect( 34, 71, 50, 50); break;
                         case 5: rect = sf::IntRect(104, 71, 50, 50); break;
-                        case 6: rect = sf::IntRect(174, 71, 50, 50); break;
+                        default: rect = sf::IntRect(174, 71, 50, 50); break;
                     }
                     bricks.back().get()->setTexture("textures/dice_cubes_sd_bit.png", rect);
                 }
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 
         world.Step(timeStep, velocityIterations, positionIterations);
 
-        window.clear(sf::Color::Black);
+        window.clear(sf::Color(30, 144, 255));
 
         auto brick_it = std::begin(bricks);
         while (brick_it != std::end(bricks)) {

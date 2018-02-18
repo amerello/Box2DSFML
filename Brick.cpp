@@ -1,7 +1,5 @@
 #include <iostream>
 #include "Brick.h"
-#include "constants.h"
-#include "helper.h"
 
 Brick::Brick(float x, float y, float width, float height, float angle, const sf::Color& color, b2World &world, bool rigid)
         : PhysicalObject(x, y, angle, world, rigid) {
