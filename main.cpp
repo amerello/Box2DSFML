@@ -24,8 +24,11 @@ int main(int argc, char** argv) {
                                   // must remain in scope.
 
     // We create a static brick and add it to the world.
-    Brick groundBrick(0.f, -10.f, 100.f, 20.f, 30.f, sf::Color::Red, world, true);
-    groundBrick.setTexture("textures/trak_tile_red.jpg", sf::IntRect(25, 40, 200, 40));
+    Brick platform(0.f, -10.f, 100.f, 20.f, 30.f, sf::Color::Red, world, true);
+    platform.setTexture("textures/trak_tile_red.jpg", sf::IntRect(25, 40, 200, 40));
+
+    Brick ground(0.f, -300.f, windowWidth, 70.f, 0.f, sf::Color::White, world, true);
+    ground.setTexture("textures/platformer/Tiles/grassMid.png", sf::IntRect(0, 0, windowWidth, 70));
 
     physical_vector bricks;
     bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,sf::Color::White, world));
@@ -33,9 +36,9 @@ int main(int argc, char** argv) {
                                     sf::IntRect(199, 199, 403, 403));
 
     // Simulation parameters
-    float32 timeStep = 1.0f / 30.0f;
+    float32 timeStep = 1.0f / 15.0f;
     int32 velocityIterations = 8;
-    int32 positionIterations = 1;
+    int32 positionIterations = 3;
 
     sf::RenderWindow window{{windowWidth, windowHeight}, "Box2D / SFML"};
     window.setFramerateLimit(60);
@@ -69,22 +72,22 @@ int main(int argc, char** argv) {
             }
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-            groundBrick.rotate(1.f);
+            platform.rotate(1.f);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-            groundBrick.translate(0, 1.f);
+            platform.translate(0, 1.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
-            groundBrick.rotate(-1.f);
+            platform.rotate(-1.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-            groundBrick.translate(-1.f, 0);
+            platform.translate(-1.f, 0);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-            groundBrick.translate(0, -1.f);
+            platform.translate(0, -1.f);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-            groundBrick.translate(1.f, 0);
+            platform.translate(1.f, 0);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
             window.close();
@@ -106,7 +109,8 @@ int main(int argc, char** argv) {
             }
         }
 
-        window.draw(groundBrick.getShape());
+        window.draw(platform.getShape());
+        window.draw(ground.getShape());
         window.display();
     }
     return 0;

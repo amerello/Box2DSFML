@@ -25,14 +25,16 @@ void PhysicalObject::createFixture(const b2Shape& shape, bool rigid) {
         fixtureDef.shape = &shape;         // Shape will be cloned, so it's safe to be on the stack
         fixtureDef.density = 1.0f;         // The fixture adds material properties to the Box2D body
         fixtureDef.friction = 0.3f;        // such as shape, density and friction.
-        fixtureDef.restitution = 1.0f;
+        fixtureDef.restitution = 0.9f;
         body->CreateFixture(&fixtureDef);  // We assign this fixture to the Box2D body.
     }
 }
 
 void PhysicalObject::setTexture(const std::string& filename, const sf::IntRect& rect) {
-    texture.loadFromFile(filename, rect);
+    texture.setRepeated(true);
+    texture.loadFromFile(filename);
     shape->setTexture(&texture);
+    shape->setTextureRect(rect);
 }
 
 // Updates graphical object position from Box2D
