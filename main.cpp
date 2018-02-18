@@ -4,6 +4,9 @@
 #include <Box2D/Box2D.h>
 #include "constants.h"
 #include "Brick.h"
+#include "Ball.h"
+
+typedef std::vector<std::unique_ptr<PhysicalObject>> physical_vector;
 
 int main(int argc, char** argv) {
     B2_NOT_USED(argc);
@@ -16,8 +19,8 @@ int main(int argc, char** argv) {
     // We create a static brick and add it to the world.
     Brick groundBrick(0.f, -10.f, 100.f, 20.f, 30.f, sf::Color::Red, world, true);
 
-    std::vector<Brick> bricks;
-    bricks.emplace_back(0.f, 50.f, 10.f, 10.f, 0.f, sf::Color::Yellow, world);
+    physical_vector bricks;
+    bricks.emplace_back(new Ball(40.f, 50.f, 10.f,sf::Color::Yellow, world));
 
     // Simulation parameters
     float32 timeStep = 1.0f / 30.0f;
@@ -29,15 +32,17 @@ int main(int argc, char** argv) {
     window.setVerticalSyncEnabled(true);
 
     while(window.isOpen()) {
-        sf::Event event{};
+        sf::Event event;
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed)
                 window.close();
             else if(event.type == sf::Event::MouseButtonPressed) {
+                float xPos = (float) event.mouseButton.x - windowWidth/2;
+                float yPos = (float) -event.mouseButton.y + windowHeight/2;
                 if(event.mouseButton.button == sf::Mouse::Left) {
-                    float xPos = (float) event.mouseButton.x - windowWidth/2;
-                    float yPos = (float) -event.mouseButton.y + windowHeight/2;
-                    bricks.emplace_back(xPos, yPos, 10.f, 10.f, 0.f, sf::Color::Yellow, world);
+                    bricks.emplace_back(new Ball(xPos, yPos, 10.f,sf::Color::Yellow, world));
+                } else if (event.mouseButton.button == sf::Mouse::Right) {
+                    bricks.emplace_back(new Brick(xPos, yPos, 10.f, 10.f, 0.f, sf::Color::Yellow, world));
                 }
             }
         }
@@ -68,13 +73,13 @@ int main(int argc, char** argv) {
 
         auto brick_it = std::begin(bricks);
         while (brick_it != std::end(bricks)) {
-            brick_it->update();
-            if(brick_it->isVisible()) {
-                window.draw(brick_it->getShape());
+            brick_it->get()->update();
+            if(brick_it->get()->isVisible()) {
+                window.draw(brick_it->get()->getShape());
                 ++brick_it;
             }
             else {
-                world.DestroyBody(brick_it->getBody());
+                world.DestroyBody(brick_it->get()->getBody());
                 bricks.erase(brick_it);
             }
         }

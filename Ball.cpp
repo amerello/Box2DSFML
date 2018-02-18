@@ -1,21 +1,22 @@
-#include "Brick.h"
+#include <iostream>
+#include <memory>
+#include "Ball.h"
 #include "constants.h"
-#include "helper.h"
 
-Brick::Brick(float x, float y, float width, float height, float angle, sf::Color color, b2World &world, bool rigid) {
+Ball::Ball(float x, float y, float radius, sf::Color color, b2World& world, bool rigid) {
     b2BodyDef bodyDef;                                     // We define a Box2D body
     bodyDef.type = rigid ? b2_staticBody : b2_dynamicBody;
     bodyDef.position.Set(x, y);                            // with an initial position and angle
-    bodyDef.angle = -degToRad(angle);                      // Box2D body has no material representation.
     body = world.CreateBody(&bodyDef);                     // The body definition is passed to the world object
-    b2PolygonShape polygon = b2PolygonShape();             // Now we create a polygon
-    polygon.SetAsBox(width / 2.f, height / 2.f);           // and use the shortcut to form the polygon into a box
+    b2CircleShape circle = b2CircleShape();
+    circle.m_p.Set(0,0);
+    circle.m_radius = radius;
 
     if (rigid) {
-        body->CreateFixture(&polygon, 0.f);                // We don't need to edit the default fixture.
+        body->CreateFixture(&circle, 0.f);                // We don't need to edit the default fixture.
     } else {
         b2FixtureDef fixtureDef;
-        fixtureDef.shape = &polygon;                       // Shape will be cloned, so it's safe to be on the stack
+        fixtureDef.shape = &circle;                       // Shape will be cloned, so it's safe to be on the stack
         fixtureDef.density = 1.0f;                         // The fixture adds material properties to the Box2D body
         fixtureDef.friction = 0.3f;                        // such as shape, density and friction.
         fixtureDef.restitution = 1.0f;
@@ -23,9 +24,8 @@ Brick::Brick(float x, float y, float width, float height, float angle, sf::Color
     }
 
     // Now we deal with the graphical representation
-    shape = std::make_shared<sf::RectangleShape>(sf::Vector2f(width, height));
+    shape = std::make_shared<sf::CircleShape>(radius) ;
     shape->setPosition(windowWidth / 2 + x, windowHeight / 2 - y);  // We draw everything displaced so (0,0) is in the
-    shape->setFillColor(color);                                     // center.
-    shape->setOrigin(width / 2.f, height / 2.f);
-    shape->setRotation(angle);
+    shape->setFillColor(color);
+    shape->setOrigin(radius, radius);
 }
