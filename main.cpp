@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
     //This is for the dice and balls
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dice(1, 6);
+    std::uniform_int_distribution<> dice(0, 5);
     std::uniform_int_distribution<> rd_ball(0, 15);
 
     b2Vec2 gravity(0.0f, -10.f);  // First, we define the gravity vector.
@@ -24,16 +24,12 @@ int main(int argc, char** argv) {
                                   // must remain in scope.
 
     // We create a static brick and add it to the world.
-    Brick platform(0.f, -10.f, 100.f, 20.f, 30.f, sf::Color::Red, world, true);
-    platform.setTexture("textures/trak_tile_red.jpg", sf::IntRect(25, 40, 200, 40));
+    Brick platform(0.f, -10.f, 100.f, 20.f, 30.f, Brick::BRICK, world, true);
 
-    Brick ground(0.f, -300.f, windowWidth, 70.f, 0.f, sf::Color::White, world, true);
-    ground.setTexture("textures/platformer/Tiles/grassMid.png", sf::IntRect(0, 0, windowWidth, 70));
+    Brick ground(0.f, -300.f, windowWidth, 70.f, 0.f, Brick::GRASS, world, true);
 
     physical_vector bricks;
-    bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,sf::Color::White, world));
-    bricks.back().get()->setTexture("textures/balls/ball" + std::to_string(rd_ball(gen)) + ".png",
-                                    sf::IntRect(199, 199, 403, 403));
+    bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,(Ball::Type)rd_ball(gen), world));
 
     // Simulation parameters
     float32 timeStep = 1.0f / 15.0f;
@@ -53,21 +49,12 @@ int main(int argc, char** argv) {
                 float xPos = (float) event.mouseButton.x - windowWidth/2;
                 float yPos = (float) -event.mouseButton.y + windowHeight/2;
                 if(event.mouseButton.button == sf::Mouse::Left) {
-                    bricks.emplace_back(std::make_unique<Ball>(xPos, yPos, 10.f,sf::Color::White, world));
-                    bricks.back().get()->setTexture("textures/balls/ball" + std::to_string(rd_ball(gen)) + ".png",
-                                                    sf::IntRect(199, 199, 403, 403));
+                    bricks.emplace_back(std::make_unique<Ball>(xPos, yPos, 10.f,(Ball::Type)rd_ball(gen), world));
+                    auto *body = bricks.back().get()->getBody();
+                    body->ApplyLinearImpulseToCenter(b2Vec2(0.f,10000.f), true);
                 } else if (event.mouseButton.button == sf::Mouse::Right) {
-                    bricks.emplace_back(std::make_unique<Brick>(xPos, yPos, 10.f, 10.f, 0.f, sf::Color::White, world));
-                    sf::IntRect rect;
-                    switch(dice(gen)) {
-                        case 1: rect = sf::IntRect( 34,  8, 50, 50); break;
-                        case 2: rect = sf::IntRect(104,  8, 50, 50); break;
-                        case 3: rect = sf::IntRect(174,  8, 50, 50); break;
-                        case 4: rect = sf::IntRect( 34, 71, 50, 50); break;
-                        case 5: rect = sf::IntRect(104, 71, 50, 50); break;
-                        default: rect = sf::IntRect(174, 71, 50, 50); break;
-                    }
-                    bricks.back().get()->setTexture("textures/dice_cubes_sd_bit.png", rect);
+                    bricks.emplace_back(std::make_unique<Brick>(xPos, yPos, 10.f, 10.f, 0.f, (Brick::Type) dice(gen),
+                                                                world));
                 }
             }
         }

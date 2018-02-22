@@ -6,7 +6,19 @@
 
 class Brick  : public PhysicalObject {
 public:
-    Brick(float x, float y, float width, float height, float angle, const sf::Color& color, b2World& world, bool rigid=false);
+    enum Type {
+        DICE_1 = 0,
+        DICE_2,
+        DICE_3,
+        DICE_4,
+        DICE_5,
+        DICE_6,
+        GRASS,
+        BRICK
+    };
+
+    Brick(float x, float y, float width, float height, float angle, Type type, b2World& world, bool rigid=false);
+    bool setTexture(Type type);
 };
 
 

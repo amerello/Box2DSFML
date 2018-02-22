@@ -6,8 +6,9 @@
 class PhysicalObject {
 public:
     PhysicalObject() = default;
+    virtual ~PhysicalObject() = default;
     PhysicalObject(float x, float y, float angle, b2World& world, bool rigid);
-    void resetShape(float x, float y, float angle, const sf::Vector2f& origin, const sf::Color& color);
+    void resetShape(float x, float y, float angle, const sf::Vector2f& origin, const sf::Color& color=sf::Color::White);
     void update();
     bool isVisible();
     void rotate(float deg);

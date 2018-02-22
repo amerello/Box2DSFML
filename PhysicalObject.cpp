@@ -1,6 +1,7 @@
 #include "PhysicalObject.h"
 #include "constants.h"
 #include "helper.h"
+#include <iostream>
 
 PhysicalObject::PhysicalObject(float x, float y, float angle, b2World& world, bool rigid) {
     b2BodyDef bodyDef;                                     // We define a Box2D body
