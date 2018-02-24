@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "Brick.h"
 #include "Ball.h"
+#include "Player.h"
 
 typedef std::vector<std::unique_ptr<PhysicalObject>> physical_vector;
 
@@ -31,6 +32,9 @@ int main(int argc, char** argv) {
     physical_vector bricks;
     bricks.emplace_back(std::make_unique<Ball>(40.f, 50.f, 10.f,(Ball::Type)rd_ball(gen), world));
 
+    bricks.emplace_back(std::make_unique<Player>(-windowWidth/2 + 30,windowHeight/2 - 530, world));
+    auto  *player = static_cast<Player*>(bricks.back().get());
+
     // Simulation parameters
     float32 timeStep = 1.0f / 15.0f;
     int32 velocityIterations = 8;
@@ -40,6 +44,10 @@ int main(int argc, char** argv) {
     window.setFramerateLimit(60);
     window.setVerticalSyncEnabled(true);
 
+    sf::Clock clock;
+
+    clock.restart();
+    sf::Int32 updateNext = clock.getElapsedTime().asMilliseconds();
     while(window.isOpen()) {
         sf::Event event;
         while(window.pollEvent(event)) {
@@ -58,27 +66,40 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
-            platform.rotate(1.f);
+        sf::Int32 updateTime = clock.getElapsedTime().asMilliseconds();
+        while((updateTime - updateNext) >= 100) {
+            bool motion = false;
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)) {
+                platform.rotate(1.f);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
+                platform.translate(0, 1.f);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
+                platform.rotate(-1.f);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
+                player->move(Player::Direction::LEFT);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
+                platform.translate(0, -1.f);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
+                player->move(Player::Direction::RIGHT);
+                motion = true;
+            }
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
+                window.close();
+            if(!motion) {
+                player->setStance(Player::STANDING);
+            }
+            updateNext += 100;
         }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) {
-            platform.translate(0, 1.f);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)) {
-            platform.rotate(-1.f);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) {
-            platform.translate(-1.f, 0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) {
-            platform.translate(0, -1.f);
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) {
-            platform.translate(1.f, 0);
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
-            window.close();
-
         world.Step(timeStep, velocityIterations, positionIterations);
 
         window.clear(sf::Color(30, 144, 255));

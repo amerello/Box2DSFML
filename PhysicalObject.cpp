@@ -11,6 +11,14 @@ PhysicalObject::PhysicalObject(float x, float y, float angle, b2World& world, bo
     body = world.CreateBody(&bodyDef);                     // The body definition is passed to the world object
 }
 
+/**
+ * Resets basic shape parameters
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param angle Orientation in degrees
+ * @param origin Center point for all transformations
+ * @param color Color
+ */
 void PhysicalObject::resetShape(float x, float y, float angle, const sf::Vector2f& origin, const sf::Color& color) {
     shape->setPosition(windowWidth / 2 + x, windowHeight / 2 - y);  // We draw everything displaced so (0,0) is in the
     shape->setFillColor(color);                                     // center.
@@ -18,6 +26,11 @@ void PhysicalObject::resetShape(float x, float y, float angle, const sf::Vector2
     shape->setRotation(angle);
 }
 
+/**
+ * Creates the fixture object and assignes it to the underlying body
+ * @param shape Box2D shape object
+ * @param rigid True for static objects, False for dynamic
+ */
 void PhysicalObject::createFixture(const b2Shape& shape, bool rigid) {
     if (rigid) {
         body->CreateFixture(&shape, 0.f);  // We don't need to edit the default fixture.

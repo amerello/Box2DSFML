@@ -13,3 +13,6 @@ https://opengameart.org/content/dice-4
 
 balls/
 https://opengameart.org/content/billiard-balls
+
+assets/
+https://opengameart.org/content/hero-spritesheets-ars-notoria
